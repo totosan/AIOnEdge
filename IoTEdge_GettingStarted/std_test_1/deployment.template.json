@@ -47,64 +47,32 @@
         },
         "modules": {
           "camera-capture": {
-            "version": "1.0",
+            "version": "1.2",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "env": {
-              "VIDEO_PATH": {
-                "value": "0"
-              },
-              "IMAGE_PROCESSING_ENDPOINT": {
-                "value": "http://CustomVision:80/image"
-              },
-              "RESIZE_WIDTH": {
-                "value": "256"
-              },
-              "RESIZE_HEIGHT": {
-                "value": "256"
-              },
-              "SHOW_VIDEO": {
-                "value": "True"
-              }
+              "VIDEO_PATH": {"value": "0"},
+              "IMAGE_PROCESSING_ENDPOINT":  {"value": "http://customvision:80/image"},
+              "RESIZE_WIDTH":  {"value": "256"},
+              "RESIZE_HEIGHT":  {"value": "256"},
+              "SHOW_VIDEO":  {"value": "False"}
             },
             "settings": {
-              "image": "${MODULES.CameraCapture.arm32v7_prep}",
+              "image": "${MODULES.CameraCapture.arm32v7}",
               "createOptions": {
                 "HostConfig": {
                   "PortBindings": {
-                    "5012/tcp": [
-                      {
-                        "HostPort": "5012"
-                      }
-                    ]
+                    "5012/tcp": [ { "HostPort":"5012"}]
                   },
-                  "Binds": [
-                    "/dev/video0:/dev/video0"
-                  ],
-                  "Devices": [
-                    {
-                      "PathOnHost": "/dev/video0",
-                      "PathInContainer": "/dev/video0",
-                      "CgroupPermissions": "mrw"
-                    }
-                  ]
+                  "Binds": ["/dev/video0:/dev/video0"],
+                  "Devices":[{"PathOnHost":"/dev/video0","PathInContainer":"/dev/video0","CgroupPermissions":"mrw"}]
                 }
               }
             }
           },
-          "image-classifier-service": {
-            "version": "1.1",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "${MODULES.ImageClassifierService.arm32v7}",
-              "createOptions": ""
-            }
-          },
-          "CustomVision": {
-            "version": "1.1",
+          "customvision": {
+            "version": "1.3",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
@@ -145,16 +113,6 @@
                 }
               }
             }
-          },
-          "EvaluateImage": {
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "${MODULES.EvaluateImage.arm32v7}",
-              "createOptions": {}
-            }
           }
         }
       }
@@ -164,9 +122,7 @@
         "schemaVersion": "1.0",
         "routes": {
           "CamPythonToBlink": "FROM /messages/modules/camera-capture/outputs/* INTO BrokeredEndpoint(\"/modules/Blink/inputs/input1\")",
-          "CamPythonToFct": "FROM /messages/modules/camera-capture/outputs/* INTO BrokeredEndpoint(\"/modules/EvaluateImage/inputs/input1\")",
-          "BlinkToIoTHub": "FROM /messages/modules/Blink/outputs/* INTO $upstream",
-          "EvaluateImageToIoTHub": "FROM /messages/modules/EvaluateImage/outputs/* INTO $upstream"
+          "BlinkToIoTHub": "FROM /messages/modules/Blink/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
