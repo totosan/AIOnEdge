@@ -119,10 +119,9 @@ namespace Blink
                 if (results.Any())
                 {
                     Blinking();
+                    await moduleClient.SendEventAsync("output1", pipeMessage);
+                    Console.WriteLine("Received message sent");
                 }
-
-                await moduleClient.SendEventAsync("output1", pipeMessage);
-                Console.WriteLine("Received message sent");
             }
             return MessageResponse.Completed;
         }
@@ -130,7 +129,7 @@ namespace Blink
         static List<string> GetHighestDetection(string message)
         {
             var predictions = Model.PredictionResult.FromJson(message);
-            var relevant = predictions.Predictions.Where(x => x.Probability > 0.6).Select(m => Newtonsoft.Json.JsonConvert.SerializeObject(new{Name = m.TagName,Probability=m.Probability}));
+            var relevant = predictions.Predictions.Where(x => x.Probability > 0.4).Select(m => Newtonsoft.Json.JsonConvert.SerializeObject(new { Name = m.TagName, Probability = m.Probability }));
 
             return relevant.ToList();
         }

@@ -47,15 +47,15 @@
         },
         "modules": {
           "camera-capture": {
-            "version": "1.2",
+            "version": "1.4",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "env": {
               "VIDEO_PATH": {"value": "0"},
               "IMAGE_PROCESSING_ENDPOINT":  {"value": "http://customvision:80/image"},
-              "RESIZE_WIDTH":  {"value": "256"},
-              "RESIZE_HEIGHT":  {"value": "256"},
+              "RESIZE_WIDTH":  {"value": "300"},
+              "RESIZE_HEIGHT":  {"value": "300"},
               "SHOW_VIDEO":  {"value": "False"}
             },
             "settings": {
@@ -82,7 +82,7 @@
             }
           },
           "Blink": {
-            "version": "1.6",
+            "version": "1.8",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
@@ -122,6 +122,7 @@
         "schemaVersion": "1.0",
         "routes": {
           "CamPythonToBlink": "FROM /messages/modules/camera-capture/outputs/* INTO BrokeredEndpoint(\"/modules/Blink/inputs/input1\")",
+          "allConnectedMessage": "FROM /messages/modules/* INTO $upstream",
           "BlinkToIoTHub": "FROM /messages/modules/Blink/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
