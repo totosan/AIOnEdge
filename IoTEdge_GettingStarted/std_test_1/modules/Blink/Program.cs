@@ -73,6 +73,11 @@ namespace Blink
             }
         }
 
+        private static void Beep()
+        {
+           var output = "mpg321 smaplePost.mp3".Bash();
+        }
+
         public static void Blinking()
         {
             //var content = string.Join('\n', Directory.GetFiles(AssemblyDirectory));
@@ -118,7 +123,9 @@ namespace Blink
 
                 if (results.Any())
                 {
+                    Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(results));
                     Blinking();
+                    //Beep();
                     await moduleClient.SendEventAsync("output1", pipeMessage);
                     Console.WriteLine("Received message sent");
                 }
@@ -129,7 +136,7 @@ namespace Blink
         static List<string> GetHighestDetection(string message)
         {
             var predictions = Model.PredictionResult.FromJson(message);
-            var relevant = predictions.Predictions.Where(x => x.Probability > 0.4).Select(m => Newtonsoft.Json.JsonConvert.SerializeObject(new { Name = m.TagName, Probability = m.Probability }));
+            var relevant = predictions.Predictions.Where(x => x.Probability > 0.4).OrderByDescending(p=>p.Probability).Select(m => Newtonsoft.Json.JsonConvert.SerializeObject(new { Name = m.TagName, Probability = m.Probability }));
 
             return relevant.ToList();
         }

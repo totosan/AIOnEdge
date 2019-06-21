@@ -47,32 +47,60 @@
         },
         "modules": {
           "camera-capture": {
-            "version": "1.4",
+            "version": "1.5",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "env": {
-              "VIDEO_PATH": {"value": "0"},
-              "IMAGE_PROCESSING_ENDPOINT":  {"value": "http://customvision:80/image"},
-              "RESIZE_WIDTH":  {"value": "300"},
-              "RESIZE_HEIGHT":  {"value": "300"},
-              "SHOW_VIDEO":  {"value": "False"}
+              "VIDEO_PATH": {
+                "value": "0"
+              },
+              "IMAGE_PROCESSING_ENDPOINT": {
+                "value": "http://customvision:80/image"
+              },
+              "RESIZE_WIDTH": {
+                "value": "300"
+              },
+              "RESIZE_HEIGHT": {
+                "value": "300"
+              },
+              "SHOW_VIDEO": {
+                "value": "False"
+              }
             },
             "settings": {
               "image": "${MODULES.CameraCapture.arm32v7}",
               "createOptions": {
                 "HostConfig": {
                   "PortBindings": {
-                    "5012/tcp": [ { "HostPort":"5012"}]
+                    "5012/tcp": [
+                      {
+                        "HostPort": "5012"
+                      }
+                    ]
                   },
-                  "Binds": ["/dev/video0:/dev/video0"],
-                  "Devices":[{"PathOnHost":"/dev/video0","PathInContainer":"/dev/video0","CgroupPermissions":"mrw"}]
+                  "Binds": [
+                    "/dev/video0:/dev/video0",
+                    "/dev/snd:/dev/snd"
+                  ],
+                  "Devices": [
+                    {
+                      "PathOnHost": "/dev/video0",
+                      "PathInContainer": "/dev/video0",
+                      "CgroupPermissions": "mrw"
+                    },
+                    {
+                      "PathOnHost": "/dev/snd",
+                      "PathInContainer": "/dev/snd",
+                      "CgroupPermissions": "mrw"
+                    }
+                  ]
                 }
               }
             }
           },
           "customvision": {
-            "version": "1.3",
+            "version": "1.4",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
@@ -82,7 +110,7 @@
             }
           },
           "Blink": {
-            "version": "1.8",
+            "version": "1.13",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
@@ -101,6 +129,11 @@
                       "PathOnHost": "/dev/mem",
                       "PathInContainer": "/dev/mem",
                       "CgroupPermissions": "rwm"
+                    },
+                    {
+                      "PathOnHost": "/dev/snd",
+                      "PathInContainer": "/dev/snd",
+                      "CgroupPermissions": "mrw"
                     }
                   ],
                   "Mounts": [
@@ -108,6 +141,28 @@
                       "Type": "bind",
                       "Source": "/lib/modules/",
                       "Target": "/lib/modules/"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "SpeechModule": {
+            "version": "1.1",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.SpeechModule}",
+              "createOptions": {
+                "HostConfig": {
+                  "Privileged": true,
+                  "Binds":["/dev/snd:/dev/snd"],
+                  "Devices": [
+                    {
+                      "PathOnHost": "/dev/snd",
+                      "PathInContainer": "/dev/snd",
+                      "CgroupPermissions": "mrw"
                     }
                   ]
                 }
@@ -122,8 +177,9 @@
         "schemaVersion": "1.0",
         "routes": {
           "CamPythonToBlink": "FROM /messages/modules/camera-capture/outputs/* INTO BrokeredEndpoint(\"/modules/Blink/inputs/input1\")",
-          "allConnectedMessage": "FROM /messages/modules/* INTO $upstream",
-          "BlinkToIoTHub": "FROM /messages/modules/Blink/outputs/* INTO $upstream"
+          "BlinkToIoTHub": "FROM /messages/modules/Blink/outputs/* INTO $upstream",
+          "BlinkToSpeechModule": "FROM /messages/modules/Blink/outputs/* INTO BrokeredEndpoint(\"/modules/SpeechModule/inputs/input1\")",
+          "SpeechModuleToIoTHub": "FROM /messages/modules/SpeechModule/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200

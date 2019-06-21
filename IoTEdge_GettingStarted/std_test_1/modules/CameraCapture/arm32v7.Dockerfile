@@ -31,7 +31,7 @@ RUN install_packages \
     # for gui
     libqt4-test libqtgui4 libqtwebkit4 libgtk2.0-dev \
     # high def image processing
-    libilmbase-dev libopenexr-dev
+    libilmbase-dev libopenexr-dev 
 
 # Install Python packages
 COPY /build/arm32v7-requirements.txt ./
