@@ -1,4 +1,4 @@
-FROM balenalib/raspberrypi3
+FROM balenalib/raspberrypi3:stretch
 # The balena base image for building apps on Raspberry Pi 3.
 
 RUN echo "BUILD MODULE: SpeechModule"
@@ -19,15 +19,14 @@ RUN install_packages \
     curl \
     libcurl4-openssl-dev \
     alsa-utils \
-    espeak
+    espeak \
+    # clean up
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoremove
 
 RUN pip3 install --upgrade pip && pip install --upgrade setuptools 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
-
-# Cleanup
-RUN rm -rf /var/lib/apt/lists/* \
-    && apt-get -y autoremove
 
 COPY /assets/* ./
 COPY . .

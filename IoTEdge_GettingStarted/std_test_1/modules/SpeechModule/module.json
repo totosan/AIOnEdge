@@ -4,7 +4,7 @@
   "image": {
     "repository": "IoTContainerTT.azurecr.io/speechmodule",
     "tag": {
-      "version": "0.0.2",
+      "version": "1.0.0",
       "platforms": {
         "amd64": "./amd64.Dockerfile",
         "amd64.debug": "./amd64.debug.Dockerfile",
